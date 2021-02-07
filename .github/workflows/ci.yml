@@ -1,0 +1,58 @@
+name: Build miniforge images
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: ${{ matrix.MINIFORGE_NAME }}-Linux
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        MINIFORGE_NAME: ["Mambaforge", "Miniforge3", "Mambaforge-pypy3", "Miniforge-pypy3"]
+        MINIFORGE_VERSION: ["4.9.2-5"]
+        DOCKERFILE: ["ubuntu"]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Enable experimental features (needed for squash)
+        shell: bash -x {0}
+        run: |
+          echo '{"experimental": true, "cgroup-parent": "/actions_job"}' | sudo tee /etc/docker/daemon.json
+          cat /etc/docker/daemon.json
+          sudo service docker restart
+      - name: Install qemu static
+        shell: bash
+        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      - name: Build and test image
+        shell: bash -x {0}
+        env:
+          ARCH: ${{ matrix.ARCH }}
+          MINIFORGE_NAME: ${{ matrix.MINIFORGE_NAME }}
+          MINIFORGE_VERSION: ${{ matrix.MINIFORGE_VERSION }}
+          DOCKERFILE: ${{ matrix.DOCKERFILE }}
+        run: |
+          docker buildx create --use --platform linux/arm64/v8,linux/amd64,linux/ppc64le
+          # Build the image for all platforms and store the final result in the build cache.
+          # All the later steps will pick this up from the cache.
+          docker buildx build --platform linux/arm64/v8,linux/amd64,linux/ppc64le -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION .
+          # As we need to fallback to the docker builder to run the tests, we cannot run all tests at once.
+          for platform in "linux/arm64/v8" "linux/amd64", "linux/ppc64le"; do
+            docker buildx build --platform ${platform} -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION -t localforge --load .
+            # We need to use the docker builder instead of the docker-container builder to fetch from local registry.
+            docker buildx build --platform ${platform} -f tests/Dockerfile.root tests/ --build-arg IMAGE_TO_TEST=localforge --builder default
+          done
+      - name: Push image
+        shell: bash -x {0}
+        if: ${{ github.ref == 'refs/heads/master' }}
+        env:
+          ARCH: ${{ matrix.ARCH }}
+          MINIFORGE_NAME: ${{ matrix.MINIFORGE_NAME }}
+          MINIFORGE_VERSION: ${{ matrix.MINIFORGE_VERSION }}
+          DOCKERFILE: ${{ matrix.DOCKERFILE }}
+        run: |
+          # docker login -u condaforgebot -p $DH_PASSWORD
+          # docker login -u conda_forge_daemon -p ${CFD_QUAY_PASSWORD} quay.io
+          for registry in "" "quay.io/"; do
+            docker buildx build --platform linux/arm64/v8,linux/amd64,linux/ppc64le -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION -t ${registry}condaforge/${MINIFORGE_NAME/M/m}:latest --push .
+            docker buildx build --platform linux/arm64/v8,linux/amd64,linux/ppc64le -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION -t ${registry}condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION} --push .
+          done
