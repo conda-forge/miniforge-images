@@ -1,0 +1,28 @@
+name: Build miniforge images
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: ${{ matrix.MINIFORGE_NAME }}-${{ matrix.OS_NAME }}-${{ matrix.ARCH }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ARCH: ['aarch64', 'ppc64le', 'amd64']
+        MINIFORGE_NAME: ["Mambaforge", "Miniforge3", "Mambaforge-pypy3", "Miniforge-pypy3"]
+        DOCKERFILE: ['ubuntu']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Enable experimental features (needed for squash)
+        run: |
+          sudo cp docker_daemon_config.json /etc/docker/daemon.json
+          sudo service docker restart
+      - name: Build and test image
+        shell: bash
+        env:
+          ARCH: ${{ matrix.ARCH }}
+          MINIFORGE_NAME: ${{ matrix.MINIFORGE_NAME }}
+          DOCKERFILE: ${{ matrix.DOCKERFILE }}
+        run: |
+          docker build --squash -f ${DOCKERFILE}/Dockerfile --build-arg MINIFORGE_NAME -t condaforge/${MINIFORGE_NAME}
