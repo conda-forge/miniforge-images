@@ -50,8 +50,8 @@ jobs:
           MINIFORGE_VERSION: ${{ matrix.MINIFORGE_VERSION }}
           DOCKERFILE: ${{ matrix.DOCKERFILE }}
         run: |
-          # docker login -u condaforgebot -p $DH_PASSWORD
-          # docker login -u conda_forge_daemon -p ${CFD_QUAY_PASSWORD} quay.io
+          docker login -u condaforgebot -p $DH_PASSWORD
+          docker login -u conda_forge_daemon -p ${CFD_QUAY_PASSWORD} quay.io
           for registry in "" "quay.io/"; do
             docker buildx build --platform linux/arm64/v8,linux/amd64,linux/ppc64le -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION -t ${registry}condaforge/${MINIFORGE_NAME/M/m}:latest --push .
             docker buildx build --platform linux/arm64/v8,linux/amd64,linux/ppc64le -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION -t ${registry}condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION} --push .
