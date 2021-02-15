@@ -23,10 +23,6 @@ jobs:
     timeoutInMinutes: 360
     steps:
       - script: |
-          echo "branch: ${SRC_BRANCH}"
-        env:
-          SRC_BRANCH: $(Build.SourceBranch)
-      - script: |
           echo '{"experimental": true, "cgroup-parent": "/actions_job"}' | sudo tee /etc/docker/daemon.json
           cat /etc/docker/daemon.json
           sudo service docker restart
