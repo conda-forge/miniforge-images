@@ -60,7 +60,7 @@ jobs:
             docker buildx build --platform linux/arm64/v8,linux/amd64,linux/ppc64le -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION -t ${registry}condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION} --push .
           done
         displayName: Push image
-        # condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
         env:
           MINIFORGE_NAME: $(MINIFORGE_NAME)
           MINIFORGE_VERSION: $(MINIFORGE_VERSION)
