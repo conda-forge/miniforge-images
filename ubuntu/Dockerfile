@@ -25,7 +25,7 @@ RUN apt-get update > /dev/null && \
         git > /dev/null && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    wget --no-hsts --quiet https://github.com/krallin/tini/releases/download/${TINI_VERSION}-$(cut -d / -f 2 <<< ${TARGETPLATFORM})/tini -O /usr/local/bin/tini && \
+    wget --no-hsts --quiet https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-$(cut -d / -f 2 <<< ${TARGETPLATFORM}) -O /usr/local/bin/tini && \
     chmod +x /usr/local/bin/tini && \
     wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE_VERSION}/${MINIFORGE_NAME}-${MINIFORGE_VERSION}-Linux-$(uname -m).sh -O /tmp/miniforge.sh && \
     /bin/bash /tmp/miniforge.sh -b -p ${CONDA_DIR} && \
