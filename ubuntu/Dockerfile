@@ -3,6 +3,7 @@ FROM ubuntu:focal-20210119
 ARG MINIFORGE_NAME=Miniforge3
 ARG MINIFORGE_VERSION=4.9.2-5
 ARG TINI_VERSION=v0.18.0
+ARG TARGETPLATFORM
 
 ENV CONDA_DIR=/opt/conda
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
@@ -25,7 +26,8 @@ RUN apt-get update > /dev/null && \
         git > /dev/null && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    wget --no-hsts --quiet https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-$(cut -d / -f 2 <<< ${TARGETPLATFORM}) -O /usr/local/bin/tini && \
+    TARGETARCH="$(echo ${TARGETPLATFORM} | cut -d / -f 2)"; case ${TARGETARCH} in "ppc64le") TARGETARCH="ppc64el" ;; *) ;; esac ; \
+    wget --no-hsts --quiet https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-${TARGETARCH} -O /usr/local/bin/tini && \
     chmod +x /usr/local/bin/tini && \
     wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE_VERSION}/${MINIFORGE_NAME}-${MINIFORGE_VERSION}-Linux-$(uname -m).sh -O /tmp/miniforge.sh && \
     /bin/bash /tmp/miniforge.sh -b -p ${CONDA_DIR} && \
