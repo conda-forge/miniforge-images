@@ -1,0 +1,30 @@
+name: Auto-update miniforge
+on:
+  schedule:
+   - cron: "0 */6 * * *"
+jobs:
+  createPullRequest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ssh-key: ${{ secrets.MINIFORGE_AUTOUPDATE_SSH_PRIVATE_KEY }}
+      - name: Run Actions script
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const script = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/autoupdate.js`)
+            console.log(script({github, context}))
+      - name: Create Pull Request
+        id: cpr
+        # This is the v3 tag but for security purposes we pin to the exact commit.
+        uses: peter-evans/create-pull-request@052fc72b4198ba9fbc81b818c6e1859f747d49a8
+        with:
+          commit-message: "Update miniforge version"
+          title: "Update miniforge version"
+          body: |
+            This PR was created by the autoupdate action as it detected that
+            the miniforge version has changed and thus should be updated
+            in the configuration.
+          branch: autoupdate-action
+          delete-branch: true
