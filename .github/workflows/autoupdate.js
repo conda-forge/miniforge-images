@@ -5,9 +5,9 @@ module.exports = ({github, context}) => {
     owner: 'conda-forge',
     repo: 'miniforge',
   }).then((release) => {
-    const miniforge_version = release['data']['tag_name'].split("-")[0];
+    const miniforge_version = release['data']['tag_name'];
 
-    exec("sed -i -e 's/MINIFORGE_VERSION: \"[0-9.\\-]*\"/MINIFORGE_VERSION: \"4.4.4\"/' azure-pipelines.yml", (error, stdout, stderr) => {
+    exec("sed -i -e 's/MINIFORGE_VERSION: \"[0-9.\\-]*\"/MINIFORGE_VERSION: \"" + miniforge_version + "\"/' azure-pipelines.yml", (error, stdout, stderr) => {
       if (error) {
         console.log(`error: ${error.message}`);
         return;
@@ -16,7 +16,7 @@ module.exports = ({github, context}) => {
         console.log(`stderr: ${stderr}`);
         return;
       }
-      exec("sed -i -e 's/MINIFORGE_VERSION=[0-9.\\-]*/MINIFORGE_VERSION=4.4.4/' ubuntu/Dockerfile", (error, stdout, stderr) => {
+      exec("sed -i -e 's/MINIFORGE_VERSION=[0-9.\\-]*/MINIFORGE_VERSION=" + miniforge_version + "/' ubuntu/Dockerfile", (error, stdout, stderr) => {
         if (error) {
           console.log(`error: ${error.message}`);
           return;
