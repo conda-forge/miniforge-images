@@ -1,4 +1,5 @@
-FROM ubuntu:focal-20210609
+FROM ubuntu:focal-20210119
+# FROM ubuntu:focal-20210609
 
 ARG MINIFORGE_NAME=Miniforge3
 ARG MINIFORGE_VERSION=4.10.2-0
