@@ -9,7 +9,7 @@ ENV CONDA_DIR=/opt/conda
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 ENV PATH=${CONDA_DIR}/bin:${PATH}
 
-# 1. Install just enough for conda to work
+# 1. Install just enough for conda to work.
 # 2. Keep $HOME clean (no .wget-hsts file), since HSTS isn't useful in this context
 # 3. Install miniforge from GitHub releases
 # 4. Apply some cleanup tips from https://jcrist.github.io/conda-docker-tips.html
