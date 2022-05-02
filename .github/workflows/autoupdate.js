@@ -1,7 +1,7 @@
 const { exec } = require("child_process");
 
 module.exports = ({github, context}) => {
-  github.repos.getLatestRelease({
+  github.rest.repos.getLatestRelease({
     owner: 'conda-forge',
     repo: 'miniforge',
   }).then((release) => {
