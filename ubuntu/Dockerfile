@@ -28,8 +28,8 @@ RUN apt-get update > /dev/null && \
     rm -rf /var/lib/apt/lists/* && \
     TARGETARCH="$(echo ${TARGETPLATFORM} | cut -d / -f 2)"; case ${TARGETARCH} in "ppc64le") TARGETARCH="ppc64el" ;; *) ;; esac ; \
     wget --no-hsts --quiet https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-${TARGETARCH} -O /usr/local/bin/tini && \
-    chmod +x /usr/local/bin/tini
-RUN wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE_VERSION}/${MINIFORGE_NAME}-${MINIFORGE_VERSION}-Linux-$(uname -m).sh -O /tmp/miniforge.sh && \
+    chmod +x /usr/local/bin/tini && \
+    wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE_VERSION}/${MINIFORGE_NAME}-${MINIFORGE_VERSION}-Linux-$(uname -m).sh -O /tmp/miniforge.sh && \
     /bin/bash /tmp/miniforge.sh -b -p ${CONDA_DIR} && \
     rm /tmp/miniforge.sh && \
     conda clean --tarballs --index-cache --packages --yes && \
