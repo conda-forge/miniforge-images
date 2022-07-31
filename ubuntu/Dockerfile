@@ -35,7 +35,7 @@ RUN apt-get update > /dev/null && \
     conda clean -tipsy && \
     find ${CONDA_DIR} -follow -type f -name '*.a' -delete && \
     find ${CONDA_DIR} -follow -type f -name '*.pyc' -delete && \
-    conda clean -afy && \
+    conda clean -f --all --yes  && \
     echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> /etc/skel/.bashrc && \
     echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc
 
