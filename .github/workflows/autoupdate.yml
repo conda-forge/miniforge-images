@@ -1,16 +1,17 @@
 name: Auto-update miniforge
 on:
+  workflow_dispatch:
   schedule:
    - cron: "0 */6 * * *"
 jobs:
   createPullRequest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           ssh-key: ${{ secrets.MINIFORGE_AUTOUPDATE_SSH_PRIVATE_KEY }}
       - name: Run Actions script
-        uses: actions/github-script@v3
+        uses: actions/github-script@v6
         with:
           script: |
             const script = require(`${process.env.GITHUB_WORKSPACE}/.github/workflows/autoupdate.js`)
@@ -18,7 +19,7 @@ jobs:
       - name: Create Pull Request
         id: cpr
         # This is the v3 tag but for security purposes we pin to the exact commit.
-        uses: peter-evans/create-pull-request@052fc72b4198ba9fbc81b818c6e1859f747d49a8
+        uses: peter-evans/create-pull-request@18f90432bedd2afd6a825469ffd38aa24712a91d
         with:
           commit-message: "Update miniforge version"
           title: "Update miniforge version"
