@@ -6,19 +6,19 @@ jobs:
       matrix:
         mambaforge:
           MINIFORGE_NAME: "Mambaforge"
-          MINIFORGE_VERSION: "23.1.0-3"
+          MINIFORGE_VERSION: "23.1.0-4"
           DOCKERFILE: "ubuntu"
         mambaforge-pypy3:
           MINIFORGE_NAME: "Mambaforge-pypy3"
-          MINIFORGE_VERSION: "23.1.0-3"
+          MINIFORGE_VERSION: "23.1.0-4"
           DOCKERFILE: "ubuntu"
         miniforge3:
           MINIFORGE_NAME: "Miniforge3"
-          MINIFORGE_VERSION: "23.1.0-3"
+          MINIFORGE_VERSION: "23.1.0-4"
           DOCKERFILE: "ubuntu"
         miniforge-pypy3:
           MINIFORGE_NAME: "Miniforge-pypy3"
-          MINIFORGE_VERSION: "23.1.0-3"
+          MINIFORGE_VERSION: "23.1.0-4"
           DOCKERFILE: "ubuntu"
     timeoutInMinutes: 360
     steps:
