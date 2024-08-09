@@ -35,7 +35,11 @@ RUN apt-get update > /dev/null && \
     find ${CONDA_DIR} -follow -type f -name '*.pyc' -delete && \
     conda clean --force-pkgs-dirs --all --yes  && \
     echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> /etc/skel/.bashrc && \
-    echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc
+    echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc && \
+    if [ ${MINIFORGE_NAME} = "Mambaforge"* ]; then \
+        echo 'echo "Mambaforge images are now deprecated!\nWe advise you switch to Miniforge3 at your earliest convenience.\nMore details at https://conda-forge.org/news/2024/07/29/sunsetting-mambaforge/."' >> /etc/skel/.bashrc \
+        echo 'echo "Mambaforge images are now deprecated!\nWe advise you switch to Miniforge3 at your earliest convenience.\nMore details at https://conda-forge.org/news/2024/07/29/sunsetting-mambaforge/."' >> ~/.bashrc \
+    fi
 
 ENTRYPOINT ["tini", "--"]
 CMD [ "/bin/bash" ]
