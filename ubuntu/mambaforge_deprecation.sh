@@ -15,7 +15,7 @@ case $(date +%F) in
         exit 1
     ;;
     *)
-        echo "Sleeping for 30s..."
-        sleep 30
+        echo "Sleeping for 300s..."
+        for i in {1..10}; do print "."; done
     ;;
 esac
