@@ -16,6 +16,7 @@ case $(date +%F) in
     ;;
     *)
         echo "Sleeping for 300s..."
-        for i in {1..10}; do print "."; done
+        for i in {1..300}; do sleep 1; printf "."; done
+        echo
     ;;
 esac
