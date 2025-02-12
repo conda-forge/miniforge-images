@@ -1,7 +1,7 @@
 jobs:
   - job: docker_build
     pool:
-      vmImage: ubuntu-20.04
+      vmImage: ubuntu-latest
     strategy:
       matrix:
         miniforge3:
@@ -11,7 +11,10 @@ jobs:
     timeoutInMinutes: 360
     steps:
       - script: |
-          echo '{"experimental": true, "cgroup-parent": "/actions_job"}' | sudo tee /etc/docker/daemon.json
+          echo "Before:"
+          cat /etc/docker/daemon.json
+          cat <<< $(jq '. + {"experimental": true}' /etc/docker/daemon.json) | sudo tee /etc/docker/daemon.json
+          echo "After:"
           cat /etc/docker/daemon.json
           sudo service docker restart
         displayName: Activate experimental Docker features
