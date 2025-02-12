@@ -11,6 +11,7 @@ jobs:
     timeoutInMinutes: 360
     steps:
       - script: |
+          cat /etc/docker/daemon.json
           echo '{"experimental": true, "cgroup-parent": "/actions_job"}' | sudo tee /etc/docker/daemon.json
           cat /etc/docker/daemon.json
           sudo service docker restart
