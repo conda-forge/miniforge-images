@@ -11,8 +11,11 @@ jobs:
     timeoutInMinutes: 360
     steps:
       - script: |
+          echo "Before:"
           cat /etc/docker/daemon.json
-          echo '{"experimental": true, "cgroup-parent": "/actions_job"}' | sudo tee /etc/docker/daemon.json
+          echo "Changing to:"
+          echo '{"experimental": true, "cgroup-parent": "/actions_job", "exec-opts": ["native.cgroupdriver=cgroupfs"]}' | sudo tee /etc/docker/daemon.json
+          echo "After:"
           cat /etc/docker/daemon.json
           sudo service docker restart
         displayName: Activate experimental Docker features
