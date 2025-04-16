@@ -19,7 +19,7 @@ jobs:
       - name: Create Pull Request
         id: cpr
         # This is the v3 tag but for security purposes we pin to the exact commit.
-        uses: peter-evans/create-pull-request@dd2324fc52d5d43c699a5636bcf19fceaa70c284 # 6d6857d36972b65feb161a90e484f2984215f83e
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # 6d6857d36972b65feb161a90e484f2984215f83e
         with:
           commit-message: "Update miniforge version"
           title: "Update miniforge version"
