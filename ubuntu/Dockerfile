@@ -37,7 +37,5 @@ RUN apt-get update > /dev/null && \
     echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> /etc/skel/.bashrc && \
     echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc
 
-COPY ubuntu/mambaforge_deprecation.sh ${CONDA_DIR}/etc/.mambaforge_deprecation.sh
-
 ENTRYPOINT ["tini", "--"]
 CMD [ "/bin/bash" ]
