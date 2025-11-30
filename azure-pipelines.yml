@@ -6,7 +6,7 @@ jobs:
       matrix:
         miniforge3:
           MINIFORGE_NAME: "Miniforge3"
-          MINIFORGE_VERSION: "25.9.1-0"
+          MINIFORGE_VERSION: "25.11.0-0"
           DOCKERFILE: "ubuntu"
     timeoutInMinutes: 360
     steps:
