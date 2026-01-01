@@ -7,7 +7,7 @@ jobs:
   createPullRequest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v4
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
         with:
           ssh-key: ${{ secrets.MINIFORGE_AUTOUPDATE_SSH_PRIVATE_KEY }}
       - name: Run Actions script
@@ -19,7 +19,7 @@ jobs:
       - name: Create Pull Request
         id: cpr
         # This is the v3 tag but for security purposes we pin to the exact commit.
-        uses: peter-evans/create-pull-request@84ae59a2cdc2258d6fa0732dd66352dddae2a412 # 6d6857d36972b65feb161a90e484f2984215f83e
+        uses: peter-evans/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # 6d6857d36972b65feb161a90e484f2984215f83e
         with:
           commit-message: "Update miniforge version"
           title: "Update miniforge version"
