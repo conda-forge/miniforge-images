@@ -20,7 +20,7 @@ jobs:
       matrix:
         cfg:
           - MINIFORGE_NAME: "Miniforge3"
-            MINIFORGE_VERSION: "26.3.2-2"
+            MINIFORGE_VERSION: "26.3.2-3"
             DOCKERFILE: "ubuntu"
         distro-arch:
           - arm64
