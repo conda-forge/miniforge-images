@@ -81,7 +81,7 @@ jobs:
             docker push quay.io/condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION}
 
   build-success:
-    name: Build success
+    name: build success
     runs-on: ubuntu-slim
     needs: build
     steps:
