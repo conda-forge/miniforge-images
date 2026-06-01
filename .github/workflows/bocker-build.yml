@@ -32,12 +32,8 @@ jobs:
 
       - name: Enable experimental features (needed for squash)
         run: |
-          echo "Before:"
-          cat /etc/docker/daemon.json
-          cat <<< $(jq '. + {"experimental": true}' /etc/docker/daemon.json) | sudo tee /etc/docker/daemon.json
-          echo "After:"
-          cat /etc/docker/daemon.json
-          sudo service docker restart
+          sudo cp docker_daemon_config.json /etc/docker/daemon.json
+          sudo service docker restart        
 
       - name: Docker info
         run: |
