@@ -1,8 +1,9 @@
 ARG IMAGE_TO_TEST=miniforge3
 FROM ${IMAGE_TO_TEST}
 
-COPY tests /tmp/tests
-RUN ls -lah /tmp/tests/
+RUN ls -lah /tmp
+COPY ./tests /tmp/tests
+RUN ls -lah /tmp
 RUN set -e; \
     ls -lah /tmp/tests/*; \
     for f in /tmp/tests/*; do \
