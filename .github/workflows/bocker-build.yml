@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build:
-    name: ${{ matrix.cfg.MINIFORGE_NAME }}:${{ matrix.cfg.MINIFORGE_VERSION }} (--platform=linux/${DISTRO_ARCH})
+    name: ${{ matrix.cfg.MINIFORGE_NAME }}:${{ matrix.cfg.MINIFORGE_VERSION }} (${{ matrix.distro-arch }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -57,7 +57,7 @@ jobs:
             -f ubuntu/Dockerfile \
             -t condaforge/${MINIFORGE_NAME/M/m}:latest \
             -t condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION} \
-            -t localforge
+            -t localforge \
             --no-cache \
             --squash \
             .
