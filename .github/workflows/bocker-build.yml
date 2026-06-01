@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build:
-    name: ${{ matrix.cfg.MINIFORGE_NAME }}:${{ matrix.cfg.MINIFORGE_VERSION }}
+    name: ${{ matrix.cfg.MINIFORGE_NAME }}:${{ matrix.cfg.MINIFORGE_VERSION }} (--platform=linux/${DISTRO_ARCH})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -22,20 +22,25 @@ jobs:
           - MINIFORGE_NAME: "Miniforge3"
             MINIFORGE_VERSION: "26.3.2-2"
             DOCKERFILE: "ubuntu"
+        distro-arch:
+          - arm64/v8
+          - amd64
+          - ppc64le
     env:
       MINIFORGE_NAME: ${{ matrix.cfg.MINIFORGE_NAME }}
       MINIFORGE_VERSION: ${{ matrix.cfg.MINIFORGE_VERSION }}
       DOCKERFILE: ${{ matrix.cfg.DOCKERFILE }}
+      DISRO_ARCH: ${{ matrix.distro-arch }}
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Enable experimental features (needed for squash)
+      - name: enable experimental features (needed for squash)
         run: |
           sudo cp docker_daemon_config.json /etc/docker/daemon.json
           sudo service docker restart        
 
-      - name: Docker info
+      - name: docker info
         run: |
           docker info
 
@@ -43,24 +48,30 @@ jobs:
         run: |
           ./download-qemu-static.sh
 
-      - name: Build and test image
+      - name: build and test image
         run: |
-          set -euxo pipefail
-          docker buildx ls
-          docker buildx create --use --platform linux/arm64/v8,linux/amd64,linux/ppc64le
-          # Build the image for all platforms and store the final result in the build cache.
-          # All the later steps will pick this up from the cache.
-          #   docker buildx build --platform linux/arm64/v8,linux/amd64,linux/ppc64le -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION .
-          # As we need to fallback to the docker builder to run the tests, we cannot run all tests at once.
-          for platform in "linux/arm64/v8" "linux/amd64" "linux/ppc64le"; do
-            docker buildx build --platform ${platform} -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION -t localforge --load .
-            pushd tests
-            # We need to use the docker builder instead of the docker-container builder to fetch from local registry.
-            docker buildx build --platform ${platform} -f Dockerfile.root --build-arg IMAGE_TO_TEST=localforge --builder default .
-            popd
-          done
+          docker build \
+            --build-arg DISTRO_ARCH \
+            --build-arg MINIFORGE_NAME \
+            --build-arg MINIFORGE_VERSION \
+            -f ubuntu/Dockerfile \
+            -t condaforge/${MINIFORGE_NAME/M/m}:latest \
+            -t condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION} \
+            -t localforge
+            --no-cache \
+            --squash \
+            .
+          
+          pushd tests
+          docker build \
+            --build-arg DISTRO_ARCH \
+            --build-arg IMAGE_TO_TEST=localforge \
+            -f Dockerfile.root \
+            --no-cache \
+            .
+          popd
 
-      - name: Deploy
+      - name: deploy
         if: github.ref == 'refs/heads/main' && github.repository == 'conda-forge/miniforge-images'
         env:
           CFD_QUAY_PASSWORD: ${{ secrets.CF_DAEMON_QUAY_PASSWORD }}
@@ -83,5 +94,5 @@ jobs:
     runs-on: ubuntu-slim
     needs: build
     steps:
-      - name: Notify build success
+      - name: notify build success
         run: echo "Build was successful!"

@@ -1,12 +1,8 @@
 ARG IMAGE_TO_TEST=miniforge3
-FROM ${IMAGE_TO_TEST}
+ARG DISTRO_ARCH
+FROM --platform=linux/${DISTRO_ARCH} ${IMAGE_TO_TEST}
 
-SHELL ["/bin/bash", "-c"]
-
-RUN mkdir -p /tmp && \
-    ls -lah /tmp
 COPY ./tests /tmp/tests
-RUN ls -lah /tmp
 RUN set -e; \
     ls -lah /tmp/tests/*; \
     for f in /tmp/tests/*; do \
