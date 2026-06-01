@@ -46,11 +46,11 @@ jobs:
       - name: Build and test image
         run: |
           set -euxo pipefail
-          docker buildx ls
-          docker buildx create --use --platform linux/arm64/v8,linux/amd64,linux/ppc64le
+          #   docker buildx ls
+          #   docker buildx create --use --platform linux/arm64/v8,linux/amd64,linux/ppc64le
           # Build the image for all platforms and store the final result in the build cache.
           # All the later steps will pick this up from the cache.
-          docker buildx build --platform linux/arm64/v8,linux/amd64,linux/ppc64le -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION .
+          #   docker buildx build --platform linux/arm64/v8,linux/amd64,linux/ppc64le -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION .
           # As we need to fallback to the docker builder to run the tests, we cannot run all tests at once.
           for platform in "linux/arm64/v8" "linux/amd64" "linux/ppc64le"; do
             docker buildx build --platform ${platform} -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION -t localforge --load .
