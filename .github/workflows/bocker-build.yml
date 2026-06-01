@@ -49,6 +49,7 @@ jobs:
       #     ./download-qemu-static.sh
 
       - name: build and test image
+        shell: bash
         run: |
           sudo cp docker_daemon_config.json /etc/docker/daemon.json
           sudo service docker restart        
