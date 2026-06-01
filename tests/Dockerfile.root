@@ -1,6 +1,8 @@
 ARG IMAGE_TO_TEST=miniforge3
 FROM ${IMAGE_TO_TEST}
 
+CMD [ "/bin/bash" ]
+
 RUN mkdir -p /tmp && \
     ls -lah /tmp
 COPY ./tests /tmp/tests
