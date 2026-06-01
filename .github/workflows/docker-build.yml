@@ -55,14 +55,12 @@ jobs:
             --no-cache \
             .
           
-          pushd tests
           docker build \
             --build-arg DISTRO_ARCH \
             --build-arg IMAGE_TO_TEST=localforge \
-            -f Dockerfile.root \
+            -f tests/Dockerfile.root \
             --no-cache \
-            .
-          popd
+            ./tests/
 
       - name: deploy
         if: github.ref == 'refs/heads/main' && github.repository == 'conda-forge/miniforge-images'
