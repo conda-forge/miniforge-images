@@ -54,8 +54,10 @@ jobs:
           # As we need to fallback to the docker builder to run the tests, we cannot run all tests at once.
           for platform in "linux/arm64/v8" "linux/amd64" "linux/ppc64le"; do
             docker buildx build --platform ${platform} -f ubuntu/Dockerfile --build-arg MINIFORGE_NAME --build-arg MINIFORGE_VERSION -t localforge --load .
+            pushd tests
             # We need to use the docker builder instead of the docker-container builder to fetch from local registry.
-            docker buildx build --platform ${platform} -f tests/Dockerfile.root tests/ --build-arg IMAGE_TO_TEST=localforge --builder default
+            docker buildx build --platform ${platform} -f Dockerfile.root --build-arg IMAGE_TO_TEST=localforge --builder default .
+            popd
           done
 
       - name: Deploy
