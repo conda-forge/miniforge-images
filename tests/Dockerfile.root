@@ -3,6 +3,7 @@ FROM ${IMAGE_TO_TEST}
 
 COPY tests /tmp/tests
 RUN set -e; \
+    ls -lah /tmp/tests/*; \
     for f in /tmp/tests/*; do \
         echo "Executing $f"; \
         $f; \
