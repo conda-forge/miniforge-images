@@ -30,7 +30,7 @@ jobs:
       MINIFORGE_NAME: ${{ matrix.cfg.MINIFORGE_NAME }}
       MINIFORGE_VERSION: ${{ matrix.cfg.MINIFORGE_VERSION }}
       DOCKERFILE: ${{ matrix.cfg.DOCKERFILE }}
-      DISRO_ARCH: ${{ matrix.distro-arch }}
+      DISTRO_ARCH: ${{ matrix.distro-arch }}
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
