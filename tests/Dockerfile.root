@@ -1,7 +1,7 @@
 ARG IMAGE_TO_TEST=miniforge3
 FROM ${IMAGE_TO_TEST}
 
-CMD [ "/bin/bash" ]
+SHELL ["/bin/bash", "-c"]
 
 RUN mkdir -p /tmp && \
     ls -lah /tmp
