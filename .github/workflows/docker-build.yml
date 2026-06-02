@@ -48,6 +48,7 @@ jobs:
             --build-arg DISTRO_ARCH \
             --build-arg MINIFORGE_NAME \
             --build-arg MINIFORGE_VERSION \
+            --platform=linux/${{ matrix.distro-arch }} \
             -f ubuntu/Dockerfile \
             -t condaforge/${MINIFORGE_NAME/M/m}:latest \
             -t condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION} \
@@ -58,6 +59,7 @@ jobs:
           docker build \
             --build-arg DISTRO_ARCH \
             --build-arg IMAGE_TO_TEST=localforge \
+            --platform=linux/${{ matrix.distro-arch }} \
             -f tests/Dockerfile.root \
             --no-cache \
             ./tests/
