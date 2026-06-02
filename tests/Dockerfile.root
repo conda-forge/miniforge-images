@@ -1,6 +1,5 @@
 ARG IMAGE_TO_TEST=miniforge3
-ARG DISTRO_ARCH
-FROM --platform=linux/${DISTRO_ARCH} ${IMAGE_TO_TEST}
+FROM ${IMAGE_TO_TEST}
 
 COPY tests /tmp/tests
 RUN set -e; \

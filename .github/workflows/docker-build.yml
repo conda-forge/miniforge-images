@@ -22,45 +22,56 @@ jobs:
           - MINIFORGE_NAME: "Miniforge3"
             MINIFORGE_VERSION: "26.3.2-3"
             DOCKERFILE: "ubuntu"
-        distro-arch:
-          - arm64
-          - amd64
-          - ppc64le
     env:
       MINIFORGE_NAME: ${{ matrix.cfg.MINIFORGE_NAME }}
       MINIFORGE_VERSION: ${{ matrix.cfg.MINIFORGE_VERSION }}
       DOCKERFILE: ${{ matrix.cfg.DOCKERFILE }}
-      DISTRO_ARCH: ${{ matrix.distro-arch }}
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4.1.0
         with:
-          platforms: ${{ matrix.distro-arch }}
+          platforms: arm64,amd64,ppc64le
 
       - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
 
       - name: build and test image
         shell: bash
         run: |
-          docker build \
-            --build-arg DISTRO_ARCH \
+          set -euxo pipefail
+          
+          docker buildx ls
+          docker buildx create --use --platform linux/arm64,linux/amd64,linux/ppc64le
+          
+          # Build the image for all platforms and store the final result in the build cache.
+          # All the later steps will pick this up from the cache.
+          docker buildx build \
+            --platform linux/arm64,linux/amd64,linux/ppc64le \
+            -f ${DOCKERFILE}/Dockerfile \
             --build-arg MINIFORGE_NAME \
             --build-arg MINIFORGE_VERSION \
-            -f ubuntu/Dockerfile \
-            -t condaforge/${MINIFORGE_NAME/M/m}:latest \
-            -t condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION} \
-            -t localforge \
-            --no-cache \
             .
           
-          docker build \
-            --build-arg DISTRO_ARCH \
-            --build-arg IMAGE_TO_TEST=localforge \
-            -f tests/Dockerfile.root \
-            --no-cache \
-            ./tests/
+          # As we need to fallback to the docker builder to run the tests, we cannot run all tests at once.
+          for platform in "linux/arm64" "linux/amd64" "linux/ppc64le"; do
+            docker buildx build \
+              --platform ${platform} \
+              -f ${DOCKERFILE}/Dockerfile \
+              --build-arg MINIFORGE_NAME \
+              --build-arg MINIFORGE_VERSION \
+              -t localforge \
+              --load \
+              .
+            
+              # We need to use the docker builder instead of the docker-container builder to fetch from local registry.
+            docker buildx build \
+              --platform ${platform} \
+              -f tests/Dockerfile.root \
+              --build-arg IMAGE_TO_TEST=localforge \
+              --builder default \
+              tests/
+          done        
 
       - name: deploy
         if: github.ref == 'refs/heads/main' && github.repository == 'conda-forge/miniforge-images'
