@@ -1,0 +1,89 @@
+name: docker-build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch: null
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.cfg.MINIFORGE_NAME }}:${{ matrix.cfg.MINIFORGE_VERSION }} (${{ matrix.distro-arch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+          - MINIFORGE_NAME: "Miniforge3"
+            MINIFORGE_VERSION: "26.3.2-3"
+            DOCKERFILE: "ubuntu"
+        distro-arch:
+          - arm64
+          - amd64
+          - ppc64le
+    env:
+      MINIFORGE_NAME: ${{ matrix.cfg.MINIFORGE_NAME }}
+      MINIFORGE_VERSION: ${{ matrix.cfg.MINIFORGE_VERSION }}
+      DOCKERFILE: ${{ matrix.cfg.DOCKERFILE }}
+      DISTRO_ARCH: ${{ matrix.distro-arch }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4.1.0
+        with:
+          platforms: ${{ matrix.distro-arch }}
+
+      - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: build and test image
+        shell: bash
+        run: |
+          docker build \
+            --build-arg DISTRO_ARCH \
+            --build-arg MINIFORGE_NAME \
+            --build-arg MINIFORGE_VERSION \
+            -f ubuntu/Dockerfile \
+            -t condaforge/${MINIFORGE_NAME/M/m}:latest \
+            -t condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION} \
+            -t localforge \
+            --no-cache \
+            .
+          
+          docker build \
+            --build-arg DISTRO_ARCH \
+            --build-arg IMAGE_TO_TEST=localforge \
+            -f tests/Dockerfile.root \
+            --no-cache \
+            ./tests/
+
+      - name: deploy
+        if: github.ref == 'refs/heads/main' && github.repository == 'conda-forge/miniforge-images'
+        env:
+          CFD_QUAY_PASSWORD: ${{ secrets.CF_DAEMON_QUAY_PASSWORD }}
+          DH_PASSWORD: ${{ secrets.CF_BOT_DH_PASSWORD }}
+        run: |
+            # dockerhub
+            docker login -u condaforgebot -p ${DH_PASSOWRD}
+            docker push condaforge/${MINIFORGE_NAME/M/m}:latest
+            docker push condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION}
+
+            # quay.io
+            docker login -u conda_forge_daemon -p ${CFD_QUAY_PASSWORD} quay.io
+            docker tag condaforge/${MINIFORGE_NAME/M/m}:latest quay.io/condaforge/${MINIFORGE_NAME/M/m}:latest
+            docker push quay.io/condaforge/${MINIFORGE_NAME/M/m}:latest
+            docker tag condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION} quay.io/condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION}
+            docker push quay.io/condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION}
+
+  build-success:
+    name: build success
+    runs-on: ubuntu-slim
+    needs: build
+    steps:
+      - name: notify build success
+        run: echo "Build was successful!"
