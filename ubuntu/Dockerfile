@@ -1,5 +1,4 @@
-ARG DISTRO_ARCH
-FROM --platform=linux/${DISTRO_ARCH} ubuntu:noble-20260410
+FROM ubuntu:noble-20260410
 
 ARG MINIFORGE_NAME=Miniforge3
 ARG MINIFORGE_VERSION=26.3.2-3
