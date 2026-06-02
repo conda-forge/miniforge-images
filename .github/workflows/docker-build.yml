@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build:
-    name: ${{ matrix.cfg.MINIFORGE_NAME }}:${{ matrix.cfg.MINIFORGE_VERSION }} (${{ matrix.distro-arch }})
+    name: ${{ matrix.cfg.MINIFORGE_NAME }}:${{ matrix.cfg.MINIFORGE_VERSION }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -40,7 +40,7 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          
+
           docker buildx ls
           docker buildx create --use --platform linux/arm64,linux/amd64,linux/ppc64le
           
@@ -64,7 +64,7 @@ jobs:
               --load \
               .
             
-              # We need to use the docker builder instead of the docker-container builder to fetch from local registry.
+            # We need to use the docker builder instead of the docker-container builder to fetch from local registry.
             docker buildx build \
               --platform ${platform} \
               -f tests/Dockerfile.root \
@@ -79,17 +79,32 @@ jobs:
           CFD_QUAY_PASSWORD: ${{ secrets.CF_DAEMON_QUAY_PASSWORD }}
           DH_PASSWORD: ${{ secrets.CF_BOT_DH_PASSWORD }}
         run: |
-            # dockerhub
-            docker login -u condaforgebot -p ${DH_PASSWORD}
-            docker push condaforge/${MINIFORGE_NAME/M/m}:latest
-            docker push condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION}
+          set -euxo pipefail
 
-            # quay.io
-            docker login -u conda_forge_daemon -p ${CFD_QUAY_PASSWORD} quay.io
-            docker tag condaforge/${MINIFORGE_NAME/M/m}:latest quay.io/condaforge/${MINIFORGE_NAME/M/m}:latest
-            docker push quay.io/condaforge/${MINIFORGE_NAME/M/m}:latest
-            docker tag condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION} quay.io/condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION}
-            docker push quay.io/condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION}
+          # login
+          docker login -u condaforgebot -p ${DH_PASSWORD}
+          docker login -u conda_forge_daemon -p ${CFD_QUAY_PASSWORD} quay.io
+
+          # push the images
+          for registry in "" "quay.io/"; do
+            docker buildx build \
+              --platform linux/arm64,linux/amd64,linux/ppc64le \
+              -f ${DOCKERFILE}/Dockerfile \
+              --build-arg MINIFORGE_NAME \
+              --build-arg MINIFORGE_VERSION \
+              -t ${registry}condaforge/${MINIFORGE_NAME/M/m}:latest \
+              --push \
+              .
+            
+            docker buildx build \
+              --platform linux/arm64,linux/amd64,linux/ppc64le \
+              -f ${DOCKERFILE}/Dockerfile \
+              --build-arg MINIFORGE_NAME \
+              --build-arg MINIFORGE_VERSION \
+              -t ${registry}condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION} \
+              --push \
+              .
+          done
 
   build-success:
     name: build success
