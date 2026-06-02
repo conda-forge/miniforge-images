@@ -69,7 +69,7 @@ jobs:
           DH_PASSWORD: ${{ secrets.CF_BOT_DH_PASSWORD }}
         run: |
             # dockerhub
-            docker login -u condaforgebot -p ${DH_PASSOWRD}
+            docker login -u condaforgebot -p ${DH_PASSWORD}
             docker push condaforge/${MINIFORGE_NAME/M/m}:latest
             docker push condaforge/${MINIFORGE_NAME/M/m}:${MINIFORGE_VERSION}
 
