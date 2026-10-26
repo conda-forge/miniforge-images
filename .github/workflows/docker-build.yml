@@ -20,7 +20,7 @@ jobs:
       matrix:
         cfg:
           - MINIFORGE_NAME: "Miniforge3"
-            MINIFORGE_VERSION: "26.9.4-0"
+            MINIFORGE_VERSION: "26.9.4-1"
             DOCKERFILE: "ubuntu"
     env:
       MINIFORGE_NAME: ${{ matrix.cfg.MINIFORGE_NAME }}
